@@ -142,7 +142,7 @@ export class Reader {
     player.id = 'webricePlayer';
     container.appendChild(player);
 
-    parent.appendChild(container);
+    parent.prepend(container);
     this.player = document.getElementById(player.id) as HTMLAudioElement;
 
     this.player.addEventListener('play', () => {

@@ -33,6 +33,9 @@ export class SpeechManager {
     } else if (webText.includes('máltækniáætlun')) {
       audioContent = [
         `resources/example_voice_files/${voice}/index.mp3`];
+    } else if (webText.includes('textalitun')) {
+      audioContent = [
+        `resources/example_voice_files/${voice}/textalitun.wav`];
     } else {
       audioContent = [
         `resources/example_voice_files/${voice}/older-clips/content-1.mp3`,

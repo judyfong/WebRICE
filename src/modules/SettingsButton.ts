@@ -63,7 +63,7 @@ export class SettingsButton extends MainButton {
 
   /**
    * @param {created} created contains
-   * wheather the module has been created or not
+   * whether the module has been created or not
    */
   private set isModuleCreated(created: boolean) {
     this.moduleCreated = created;
@@ -90,7 +90,7 @@ export class SettingsButton extends MainButton {
    */
   public toggleModule(): void {
     if (!this.isModuleCreated) {
-      const parent = document.getElementById('webrice')!;
+      const parent = document.getElementById('webrice') as HTMLElement;
       this.createSettingsModule(parent);
     } else if (!this.isModuleVisible) {
       this.showSettingsModule();
@@ -100,15 +100,59 @@ export class SettingsButton extends MainButton {
   }
 
   /**
-   * Creates the about section.
-   * @param {HTMLElement} parent the parent element of the about section
+   * Creates the settings header and text
+   * @param {HTMLElement} parent the parent element of the header
    */
-  private addAboutWEBRICE(parent: HTMLElement) {
+  private addSettingsHeader(parent: HTMLElement) {
     const settingsMainHeading = document.createElement('h2');
     settingsMainHeading.appendChild(
         document.createTextNode(this.helpText.userText.mainHead));
     parent.appendChild(settingsMainHeading);
+  }
 
+  /**
+   * Add the text highlight section the settings module
+   * It's a form with a checkbox.
+   * @return {isHighlightSection} - the html div which contains the
+   * highlighting form
+   */
+  private createHighlightSection() {
+    const highlightSection = document.createElement('section');
+    // Children of highlight section
+    const sentenceHighlightLabel = document.createElement('label');
+    const sentenceHighlightInput = document.createElement('input');
+    const sentenceHighlightStatus = 'sentenceHighlightStatus';
+    sentenceHighlightInput.id = sentenceHighlightStatus;
+    sentenceHighlightInput.type = 'checkbox';
+    this.isSentenceHLChecked(sentenceHighlightInput);
+
+    sentenceHighlightLabel.appendChild(document.createTextNode(
+        this.helpText.userText.sentenceColorBackground));
+    sentenceHighlightLabel.htmlFor = sentenceHighlightStatus;
+    // Add children
+    highlightSection.appendChild(sentenceHighlightLabel);
+    highlightSection.appendChild(sentenceHighlightInput);
+    return highlightSection;
+  }
+
+  /**
+   * Create the save settings button (form submission)
+   * @return {submitButton} (HTMLButtonElement) - the save settings button
+   */
+  private createSubmitButton() {
+    const submitButton = document.createElement('button');
+    submitButton.type = 'submit';
+    submitButton.id = 'submitSettings';
+    submitButton.appendChild(document.createTextNode(
+        this.helpText.userText.submit));
+    return submitButton;
+  }
+
+  /**
+   * Creates the about section.
+   * @param {HTMLElement} parent the parent element of the about section
+   */
+  private addAboutWEBRICE(parent: HTMLElement) {
     const sections = this.helpText.userText.sections;
     let sectNum;
     for (sectNum = 0; sectNum < sections.length; sectNum++) {
@@ -154,6 +198,9 @@ export class SettingsButton extends MainButton {
     const settingsMainContainer = document.createElement('div');
     settingsMainContainer.setAttribute('id', this.moduleIds.maincontainer);
 
+    this.addSettingsHeader(settingsContainer);
+    settingsContainer.appendChild(this.createHighlightSection());
+    settingsContainer.appendChild(this.createSubmitButton());
     this.addAboutWEBRICE(settingsContainer);
     settingsMainContainer.appendChild(settingsHeader);
     settingsMainContainer.appendChild(settingsContainer);
@@ -169,6 +216,9 @@ export class SettingsButton extends MainButton {
         if (e.key === 'Enter') this.hideSettingsModule();
       });
     }
+    const saveButton = document.getElementById('submitSettings') as
+        HTMLButtonElement;
+    saveButton.addEventListener('click', this.saveUserSettings);
 
     this.isModuleCreated = true;
     this.showSettingsModule();
@@ -178,18 +228,18 @@ export class SettingsButton extends MainButton {
    * hides the settings module
    */
   public hideSettingsModule(): void {
-    const container = document.getElementById('webrice')!;
+    const container = document.getElementById('webrice') as HTMLElement;
     container.style.setProperty('--module-visibility', 'none');
     this.isModuleVisible = false;
   }
 
   /**
    * @param {any} element
-   * If element is desendant of main settings module container
+   * If element is descendant of main settings module container
    * or the settings button.
    * @return {boolean} true if the element is a desendant and false if not.
    */
-  public isDescendant(element: any) {
+  public isDescendant(element: any): boolean {
     const parentId = this.moduleIds.maincontainer;
 
     if (element.id === parentId || element.id === this.id) {
@@ -208,7 +258,7 @@ export class SettingsButton extends MainButton {
    * @param {MouseEvent|KeyboardEvent} event, click event.
    * Checks if user is clicking away from settings module.
    */
-  public closeOnClickAway(event: MouseEvent|KeyboardEvent) {
+  public closeOnClickAway(event: MouseEvent|KeyboardEvent): void {
     if (this.isModuleVisible) {
       if (!this.isDescendant(event.target)) {
         this.hideSettingsModule();
@@ -220,23 +270,47 @@ export class SettingsButton extends MainButton {
    * Shows the settings module
    */
   public showSettingsModule(): void {
-    const container = document.getElementById('webrice')!;
+    const container = document.getElementById('webrice') as HTMLElement;
     container.style.setProperty('--module-visibility', 'flex');
     this.isModuleVisible = true;
   }
 
   /**
-   * Fetches the user settings and stores them
+   * Check if sentence highlighting is enabled.
+   * @param {HTMLInputElement} box - the checkbox for selecting sentence
+   * highlighting
    */
-  public fetchUserSettings(): void {
-    console.log('to be implemented');
+  private isSentenceHLChecked(box: HTMLInputElement) {
+    const highlightSent = this.fetchUserSettings('highlightSentence');
+    box.checked = (highlightSent === null) ? true : highlightSent;
   }
 
   /**
-   * saves user settings to client storage
+   * Fetches the user settings from client storage
+   * TODO: use/move to clientstore module
+   * @param{string} settingsItem - the setting to fetch
+   * @return {(boolean|null)} return the value from localstorage
+   */
+  public fetchUserSettings(settingsItem: string): boolean|null {
+    console.log('to be implemented fully');
+    const sentenceHighlightStatus = localStorage.getItem(settingsItem);
+    if (sentenceHighlightStatus !== null) {
+      const boxStatus = JSON.parse(sentenceHighlightStatus);
+      return boxStatus;
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * Saves user settings to client storage
+   * TODO: use clientstore module
    */
   public saveUserSettings(): void {
-    console.log('to be implemented');
+    const sentenceElement = document
+        .getElementById('sentenceHighlightStatus') as HTMLInputElement;
+    const sentenceStatus = sentenceElement.checked;
+    localStorage.setItem('highlightSentence', JSON.stringify(sentenceStatus));
   }
 
   /**

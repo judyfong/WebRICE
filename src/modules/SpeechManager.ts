@@ -49,7 +49,7 @@ export class SpeechManager {
     // submit query to tts.tiro.is
     // const voice = 'talromur/b';
     console.log(webText);
-    const voiceName = 'Bjartur';
+    const voiceName = 'Alfur';
     const audioType = 'mp3';
     const url = 'https://tts.tiro.is/v0/speech';
     console.log('Using Tiro Cicero talromur b/' + voiceName +
@@ -69,7 +69,7 @@ export class SpeechManager {
         SpeechMarkTypes: [],
         Text: webText,
         TextType: 'text',
-        VoiceId: 'Bjartur',
+        VoiceId: voiceName,
       }),
     })
         .then((res) => {
